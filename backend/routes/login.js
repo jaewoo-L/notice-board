@@ -18,11 +18,16 @@ router.get('/signUp', function(req, res) {
 router.post('/signUp', function(req, res, next) {
 	var newUser = new User({
 		username: req.body.username,
+		nickname: req.body.nickname,
 		firstName: req.body.firstName,
 		lastName: req.body.lastName,
 		avatar: req.body.avatar,
 		age: req.body.age,
-		address: req.body.address,
+		postcode: req.body.postcode,
+		roadAddress: req.body.roadAddress,
+		jibunAddress: req.body.jibunAddress,
+		detailAddress: req.body.detailAddress,
+		extraAddress: req.body.extraAddress,
 		phone_first: req.body.phone_first,
 		phone_middle: req.body.phone_middle,
 		phone_last: req.body.phone_last
@@ -52,7 +57,9 @@ router.post('/', passport.authenticate('local') ,function(req, res) {
 	console.log('user ');
 	console.log(req.user);
 	req.session._id = req.user._id;
+	sendmsg.isAdmin = req.user.isAdmin;
 	sendmsg.username = req.user.username;
+	sendmsg.nickname = req.user.nickname;
 	sendmsg.session = req.session._id;
 	console.log('sendmsg object!!!');
 	console.log(sendmsg);
@@ -131,14 +138,12 @@ router.post('/forgot', function(req, res, next) {
 // });
 
 router.post('/reset/:token', function(req, res) {
-	console.log('비밀번호 변경 waterfall 입성전.');
 	async.waterfall([
 		function(done) {
 			User.findOne({ resetPasswordToken: req.params.token, resetPasswordExpires: { $gt: Date.now() } }, function(err, user) {
 				if(!user) {
 					res.json('존재하지 않는 유저입니다.')
 				}
-				console.log('비밀번호 변경 waterfall 입성후.');
 				user.setPassword(req.body.password, function(err) {
 					user.resetPasswordToken = undefined;
 					user.resetPasswordExpires = undefined;
@@ -176,6 +181,126 @@ router.post('/reset/:token', function(req, res) {
 			res.json({result: '실패하였습니다.'})
 		} else {
 			res.json({result: '비밀번호가 변경되었습니다.'})
+		}
+	});
+});
+
+router.get('/:id/basket', function(req, res) {
+	User.findById(req.params.id).where('basket').populate('basket').exec(function(err, foundUserBasket) {
+		console.log('user basket');
+		console.log(foundUserBasket);
+
+		res.json(foundUserBasket);
+	});
+});
+
+router.get('/:id/basket', function(req, res) {
+	User.findById(req.params.id).where('basket').populate('basket').exec(function(err, foundUserBasket) {
+		console.log('user basket');
+		console.log(foundUserBasket);
+
+		res.json(foundUserBasket);
+	});
+});
+
+//User's item in shopping basket Route
+router.post("/:id/basket", function(req,res){
+	User.findById(req.body.userid, function(err, foundUser) {
+		if(err) {
+			
+		}
+		console.log(foundUser);
+		var foundBasketUser = foundUser.basket.some(function(basket) {
+				return basket.equals(req.params.id);
+			
+		});
+		if(foundBasketUser) {
+			//already have, removing product
+			foundUser.basket.pull(req.params.id);
+		}else { 
+			foundUser.basket.push(req.params.id);
+		}
+		
+		foundUser.save(function(err) {
+			if(err) {
+				
+			}
+			console.log('저장합니다.')
+			console.log(foundUser.basket);
+			res.json(foundUser.basket);
+		});
+	});
+});
+
+router.get('/:id/orders', function(req, res) {
+	User.findById(req.params.id).where('orders').populate('orders').exec(function(err, foundUserOrders) {
+		console.log('user orders');
+		console.log(foundUserOrders);
+
+		res.json(foundUserOrders);
+	});
+});
+
+router.post("/:id/orders", function(req,res){
+	User.findById(req.body.userid, function(err, foundUser) {
+		foundUser.orders.push(req.params.id);
+		foundUser.save(function(err) {
+			if(err) {
+				
+			}
+			console.log('저장합니다.')
+			console.log(foundUser.orders);
+			res.json(foundUser.orders);
+		});
+	});
+});
+
+router.get('/:id/myPage', function(req, res) {
+	User.findById(req.params.id, function(err, foundUser) {
+		console.log(foundUser);
+		res.json(foundUser);
+	});
+});
+
+router.put("/:id/myPage/edit", function(req, res) {
+	User.findById(req.params.id, function(err, foundUser) {
+		if(err) {
+			console.log(err);
+		} else {
+			foundUser.nickname = req.body.nickname
+			foundUser.lastName = req.body.lastName
+			foundUser.firstName = req.body.firstName
+			foundUser.avatar = req.body.avatar
+			foundUser.age = req.body.age
+			foundUser.postcode = req.body.postcode
+			foundUser.roadAddress = req.body.roadAddress
+			foundUser.jibunAddress = req.body.jibunAddress
+			foundUser.detailAddress = req.body.detailAddress
+			foundUser.extraAddress = req.body.extraAddress
+			foundUser.phone_first = req.body.phone_first
+			foundUser.phone_middle = req.body.phone_middle
+			foundUser.phone_last = req.body.phone_last
+			console.log('저장하기 일보직전');
+			console.log(foundUser);
+			
+			foundUser.save(function(err) {
+				if(err) {
+					console.log(err);
+					res.json({result: 'fail'});
+				} else {
+					res.json(foundUser);
+				}
+			})
+		}
+	})
+});
+
+router.delete("/:id/myPage" ,function(req,res){
+	User.findByIdAndRemove(req.params.id, function(err){
+		if(err){
+			res.json({result: 'fail'})
+		}else{
+			res.json({result: 'success'})
 		}
 	});
 });

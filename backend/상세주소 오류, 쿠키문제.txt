@@ -12,3 +12,5 @@ ex) axios.get('some api url', {withCredentials: true});
 	axios.post('/api/login/signUp', { 
    	     user: this.user
    	   }, { withCredentials: true })
+
+   	   axios

@@ -3,8 +3,8 @@ var mongoose = require('mongoose');
 var productSchema = new mongoose.Schema({
 	name: String,
 	price: String,
-	image: String,
-	Detailed_image: String,
+	thumbnail: String,
+	detailed_image: String,
 	likes: [
         {
             type: mongoose.Schema.Types.ObjectId,
@@ -26,8 +26,16 @@ var productSchema = new mongoose.Schema({
 	],
 	kinds: String,
 	brand: String,
-	items: Number,
-	avatar: String
+	SItems: {type:Number, default: 0},
+	MItems: {type:Number, default: 0},
+	LItems: {type:Number, default: 0},
+	XLItems: {type:Number, default: 0},
+	FreeItems: {type:Number, default: 0},
+	avatar: String,
+	date: {
+	    type: Date,
+	    default: Date.now
+	}
 });
 
 module.exports = mongoose.model('Product',productSchema);

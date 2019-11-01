@@ -4,14 +4,19 @@ var passportLocalMongoose = require('passport-local-mongoose');
 var userSchema  = new mongoose.Schema({
 	username: {type:String, unique: true, required: true},
 	password: String,
+	nickname: String,
 	firstName: String,
 	lastName: String,
 	avatar: String,
-	age: String,
-	address: String,
-	phone_first: Number,
-	phone_middle: Number,
-	phone_last: Number,
+	age: Number,
+	postcode: String,
+	roadAddress: String,
+	jibunAddress: String,
+	detailAddress: String,
+	extraAddress: String,
+	phone_first: String,
+	phone_middle: String,
+	phone_last: String,
 	resetPasswordToken: String,
 	resetPasswordExpires: Date,
 	orders: [{
@@ -22,9 +27,13 @@ var userSchema  = new mongoose.Schema({
 		type: mongoose.Schema.Types.ObjectId,
 		ref: "Product"
 	}],
-	isAdmin: {type:Boolean, default:false}
+	isAdmin: {type:String, default:'false'}
 });
 //plugin 으로 passportLocalMongoose npm메소드 추가
 userSchema.plugin(passportLocalMongoose);
 
 module.exports = mongoose.model('User',userSchema);
+
+
+//admin@admin.com
+//adminadmin
