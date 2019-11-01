@@ -10,7 +10,6 @@ var methodOverride = require('method-override');
 var session = require('express-session');
 var User 				  = require('./models/user');
 var	localStrategy         = require('passport-local');
-// var	localStrategy         = require('passport-local').Strategy;
 var	passportLocalMongoose = require('passport-local-mongoose');
 
 
